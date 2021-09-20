@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SaveLoadPlugin",
+	"Description": "Plugin for the convenience of saving game settings",
+	"Category": "Other",
+	"CreatedBy": "Daniil Kvasnikov",
+	"CreatedByURL": "https://github.com/DaniilKvasnikov",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "SaveLoadPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
