@@ -4,17 +4,30 @@
 #include "SaveLoadSubsystem.h"
 #include "SaveLoadSettings.h"
 
+void USaveLoadSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Initialize save load subsystem"));
+
+	bool success;
+	JsonObject = MakeShareable(new FJsonObject);
+	UpdateJsonObject(LoadStringFromFile(success));
+}
+
+void USaveLoadSubsystem::Deinitialize()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Deinitialize save load subsystem"));
+}
+
 FString USaveLoadSubsystem::string_Load(const FString& Name, const FString& default, bool& success)
 {
-	UpdateJsonObject(LoadStringFromFile(success));
 	FString outString;
-	success = success && JsonObject->TryGetStringField(Name, outString);
-	if (!success)
-	{
-		outString = default;
-		UpdateParameter(Name, default);
-	}
-	return outString;
+	success = JsonObject->TryGetStringField(Name, outString);
+	if (success)
+		return outString;
+	UpdateJsonObject(Name, default);
+	SaveJson(GetString());
+	return default;
+	
 }
 
 void USaveLoadSubsystem::string_Save(FString name, FString str)
@@ -29,14 +42,6 @@ FString USaveLoadSubsystem::GetPathToSaveFile()
 	return FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectConfigDir(), settings->Filename));
 }
 
-FString USaveLoadSubsystem::GetString()
-{
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
-	return OutputString;
-}
-
 void USaveLoadSubsystem::UpdateJsonObject(FString JsonString)
 {
 	TSharedRef< TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(JsonString);
@@ -48,10 +53,12 @@ void USaveLoadSubsystem::UpdateJsonObject(const FString& Name, const FString& Va
 	JsonObject->SetStringField(Name, Value);
 }
 
-void USaveLoadSubsystem::UpdateParameter(FString name, FString str)
+FString USaveLoadSubsystem::GetString()
 {
-	UpdateJsonObject(name, str);
-	SaveJson(GetString());
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+	return OutputString;
 }
 
 FString USaveLoadSubsystem::LoadStringFromFile(bool& success)
@@ -68,6 +75,5 @@ void USaveLoadSubsystem::SaveJson(const FString& JSON)
 {
 	const FString FilePath = GetPathToSaveFile();
 	FFileHelper::SaveStringToFile(JSON, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
-	UE_LOG(LogTemp, Warning, TEXT("JSON write %s"), *JSON);
 }
 
