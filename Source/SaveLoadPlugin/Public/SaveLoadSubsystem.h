@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
+
+#include "Dom/JsonObject.h"
+#include "JsonObjectConverter.h"
+
 #include "SaveLoadSubsystem.generated.h"
 
 /**
@@ -16,5 +20,16 @@ class SAVELOADPLUGIN_API USaveLoadSubsystem : public UEngineSubsystem
 
 public:
 	UFUNCTION(BlueprintCallable)
-	FString LoadJson();
+	FString LoadJson(const FString& Name, const FString& default, bool& success);
+
+private:
+	TSharedPtr<FJsonObject> JsonObject;
+
+	FString GetPathToSaveFile();
+	void UpdateJsonObject(FString JsonString);
+	void UpdateJsonObject(const FString& Name, const FString& Value);
+	FString GetString();
+	void UpdateParameter(FString name, FString str);
+	FString LoadStringFromFile(bool& success);
+	void SaveJson(const FString& JSON);
 };
