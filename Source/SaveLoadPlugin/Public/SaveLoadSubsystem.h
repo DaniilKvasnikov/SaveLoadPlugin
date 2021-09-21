@@ -20,7 +20,9 @@ class SAVELOADPLUGIN_API USaveLoadSubsystem : public UEngineSubsystem
 
 public:
 	UFUNCTION(BlueprintCallable)
-	FString LoadJson(const FString& Name, const FString& default, bool& success);
+	FString string_Load(const FString& Name, const FString& default, bool& success);
+	UFUNCTION(BlueprintCallable)
+	void string_Save(FString name, FString str);
 
 private:
 	TSharedPtr<FJsonObject> JsonObject;

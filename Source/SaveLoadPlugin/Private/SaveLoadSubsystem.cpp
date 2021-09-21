@@ -4,6 +4,25 @@
 #include "SaveLoadSubsystem.h"
 #include "SaveLoadSettings.h"
 
+FString USaveLoadSubsystem::string_Load(const FString& Name, const FString& default, bool& success)
+{
+	UpdateJsonObject(LoadStringFromFile(success));
+	FString outString;
+	success = success && JsonObject->TryGetStringField(Name, outString);
+	if (!success)
+	{
+		outString = default;
+		UpdateParameter(Name, default);
+	}
+	return outString;
+}
+
+void USaveLoadSubsystem::string_Save(FString name, FString str)
+{
+	UpdateJsonObject(name, str);
+	SaveJson(GetString());
+}
+
 FString USaveLoadSubsystem::GetPathToSaveFile()
 {
 	const USaveLoadSettings* settings = GetDefault<USaveLoadSettings>();
@@ -35,19 +54,6 @@ void USaveLoadSubsystem::UpdateParameter(FString name, FString str)
 	SaveJson(GetString());
 }
 
-FString USaveLoadSubsystem::LoadJson(const FString& Name, const FString& default, bool& success)
-{
-	UpdateJsonObject(LoadStringFromFile(success));
-	FString outString;
-	success = success && JsonObject->TryGetStringField(Name, outString);
-	if (!success)
-	{
-		outString = default;
-		UpdateParameter(Name, default);
-	}
-	return outString;
-}
-
 FString USaveLoadSubsystem::LoadStringFromFile(bool& success)
 {
 	FString FilePath;
@@ -61,7 +67,7 @@ FString USaveLoadSubsystem::LoadStringFromFile(bool& success)
 void USaveLoadSubsystem::SaveJson(const FString& JSON)
 {
 	const FString FilePath = GetPathToSaveFile();
-	FFileHelper::SaveStringToFile(JSON, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_None);
+	FFileHelper::SaveStringToFile(JSON, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
 	UE_LOG(LogTemp, Warning, TEXT("JSON write %s"), *JSON);
 }
 
